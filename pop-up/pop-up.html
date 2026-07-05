@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>PhishGuard</title>
+
+    <link rel="stylesheet" href="popup.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🛡️ PhishGuard</h1>
+
+        <p class="subtitle">
+            Phishing Protection
+        </p>
+
+        <div class="card">
+
+            <div class="label">
+                Current Website
+            </div>
+
+            <div id="website" class="value">
+                Loading...
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="label">
+                Risk Score
+            </div>
+
+            <div id="score" class="score safe">
+                0 / 100
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="label">
+                Status
+            </div>
+
+            <div id="status" class="status safe">
+
+                ✅ Safe
+
+            </div>
+
+        </div>
+
+        <button id="updateDB">
+
+            Update PhishTank Database
+
+        </button>
+
+    </div>
+
+    <script src="popup.js"></script>
+
+</body>
+
+</html>
