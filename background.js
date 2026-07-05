@@ -52,6 +52,20 @@ async function analyzeWebsite(url, tabId) {
 
     log("Normalized:", normalized);
 
+    if (!normalized) {
+
+        await showWarning(tabId, {
+
+            score: 100,
+
+            reasons: ["Invalid URL format."]
+
+        });
+
+        return;
+
+    }
+
     // Blacklist Check
 
     const blacklistResult = await checkBlacklist(normalized);
@@ -82,23 +96,23 @@ async function analyzeWebsite(url, tabId) {
 
     // Compute Score
 
-    const score = calculateRisk(
+    const risk = calculateRisk(
 
         heuristicResult.results
 
     );
 
-    log("Risk Score:", score);
+    log("Risk Score:", risk);
 
     // Warning Threshold
 
-    if (score >= 60) {
+    if (risk.score >= 40) {
 
         await showWarning(tabId, {
 
-            score,
+            score: risk.score,
 
-            reasons: heuristicResult.results
+            reasons: heuristicResult.results.map(result => result.message)
 
         });
 

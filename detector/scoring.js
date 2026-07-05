@@ -31,7 +31,7 @@ export function calculateRisk(results = []) {
 
     }
 
-    else if (score >= 30) {
+    else if (score >= 40) {
 
         level = "SUSPICIOUS";
 
