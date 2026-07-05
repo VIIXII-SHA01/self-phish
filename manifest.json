@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Self-Phish",
+  "description": "Detects phishing websites using a local PhishTank database and heuristic analysis.",
+  "version": "1.0.0",
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "alarms"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Self-Phish"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "content/warning.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
