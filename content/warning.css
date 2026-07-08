@@ -4,7 +4,7 @@
 
     inset: 0;
 
-    background: rgba(0,0,0,.65);
+    background: rgba(243, 244, 246, 0.92);
 
     display: flex;
 
@@ -24,7 +24,7 @@
 
     max-width: 90%;
 
-    background: white;
+    background: #FFFFFF;
 
     border-radius: 14px;
 
@@ -38,9 +38,9 @@
 
 .phishguard-header {
 
-    background: #d32f2f;
+    background: #1E3A8A;
 
-    color: white;
+    color: #FFFFFF;
 
     font-size: 24px;
 
@@ -114,27 +114,29 @@
 
 #pg-leave {
 
-    background: #d32f2f;
+    background: #F97316;
 
-    color: white;
+    color: #FFFFFF;
 
 }
 
 #pg-leave:hover {
 
-    background: #b71c1c;
+    background: #EA580C;
 
 }
 
 #pg-ignore {
 
-    background: #e0e0e0;
+    background: #F3F4F6;
+
+    color: #1E3A8A;
 
 }
 
 #pg-ignore:hover {
 
-    background: #cfcfcf;
+    background: #E5E7EB;
 
 }
 
