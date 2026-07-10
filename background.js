@@ -6,6 +6,7 @@ import { checkBlacklist } from "./detector/blacklist.js";
 import { runHeuristics } from "./detector/heuristics.js";
 import { calculateRisk } from "./detector/scoring.js";
 import { log } from "./utils/logger.js";
+import { save } from "./utils/storage.js";
 
 // Ignore browser internal pages
 const ignoredProtocols = [
@@ -44,77 +45,116 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
 async function analyzeWebsite(url, tabId) {
 
-    log("Checking:", url);
+    try {
 
-    // Normalize URL
+        log("Checking:", url);
 
-    const normalized = normalizeURL(url);
+        // Normalize URL
 
-    log("Normalized:", normalized);
+        const normalized = normalizeURL(url);
 
-    if (!normalized) {
+        log("Normalized:", normalized);
 
-        await showWarning(tabId, {
+        if (!normalized) {
 
-            score: 100,
+            await save("lastScan", {
 
-            reasons: ["Invalid URL format."]
+                url: url,
+                score: 100,
+                level: "DANGEROUS",
+                reasons: ["Invalid URL format."]
 
-        });
+            });
 
-        return;
+            await showWarning(tabId, {
 
-    }
+                score: 100,
 
-    // Blacklist Check
+                reasons: ["Invalid URL format."]
 
-    const blacklistResult = await checkBlacklist(normalized);
+            });
 
-    if (blacklistResult.found) {
+            return;
 
-        log("PhishTank Match");
+        }
 
-        await showWarning(tabId, {
+        // Blacklist Check
 
-            score: 100,
+        const blacklistResult = await checkBlacklist(normalized);
 
-            reasons: [
+        if (blacklistResult.found) {
 
-                "Known phishing website (PhishTank)"
+            log("PhishTank Match");
 
-            ]
+            await save("lastScan", {
 
-        });
+                url: url,
+                score: 100,
+                level: "DANGEROUS",
+                reasons: ["Known phishing website (PhishTank)"]
 
-        return;
+            });
 
-    }
+            await showWarning(tabId, {
 
-    // Run Heuristic Engine
+                score: 100,
 
-    const heuristicResult = await runHeuristics(normalized);
+                reasons: [
 
-    // Compute Score
+                    "Known phishing website (PhishTank)"
 
-    const risk = calculateRisk(
+                ]
 
-        heuristicResult.results
+            });
 
-    );
+            return;
 
-    log("Risk Score:", risk);
+        }
 
-    // Warning Threshold
+        // Run Heuristic Engine
 
-    if (risk.score >= 40) {
+        const heuristicResult = await runHeuristics(normalized);
 
-        await showWarning(tabId, {
+        // Compute Score
 
+        const risk = calculateRisk(
+
+            heuristicResult.results
+
+        );
+
+        log("Risk Score:", risk);
+
+        // Persist scan result for popup
+
+        await save("lastScan", {
+
+            url: url,
             score: risk.score,
-
+            level: risk.level,
             reasons: heuristicResult.results.map(result => result.message)
 
         });
+
+        // Warning Threshold
+
+        if (risk.score >= 40) {
+
+            await showWarning(tabId, {
+
+                score: risk.score,
+
+                reasons: heuristicResult.results.map(result => result.message)
+
+            });
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error("Website analysis failed:", error);
 
     }
 
@@ -124,44 +164,62 @@ async function analyzeWebsite(url, tabId) {
 
 async function showWarning(tabId, data) {
 
-    await chrome.scripting.insertCSS({
+    try {
 
-        target: {
+        await chrome.scripting.insertCSS({
 
-            tabId
+            target: {
 
-        },
+                tabId
 
-        files: [
+            },
 
-            "content/warning.css"
+            files: [
 
-        ]
+                "content/warning.css"
 
-    });
+            ]
 
-    await chrome.scripting.executeScript({
+        });
 
-        target: {
+        await chrome.scripting.executeScript({
 
-            tabId
+            target: {
 
-        },
+                tabId
 
-        files: [
+            },
 
-            "content/warning.js"
+            files: [
 
-        ]
+                "content/warning.js"
 
-    });
+            ]
 
-    chrome.tabs.sendMessage(tabId, {
+        });
 
-        type: "SHOW_WARNING",
+        chrome.tabs.sendMessage(tabId, {
 
-        data
+            type: "SHOW_WARNING",
 
-    });
+            data
+
+        }, () => {
+
+            if (chrome.runtime.lastError) {
+
+                console.debug("Warning message not delivered:", chrome.runtime.lastError.message);
+
+            }
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error("Warning injection failed:", error);
+
+    }
 
 }

@@ -236,7 +236,15 @@ export function normalizeHomographs(text = "") {
 
 export function isTrustedDomain(hostname = "") {
 
-    return trustedDomains.includes(normalizeHost(hostname));
+    const host = normalizeHost(hostname);
+
+    if (!host) {
+        return false;
+    }
+
+    return trustedDomains.some(domain =>
+        host === domain || host.endsWith(`.${domain}`)
+    );
 
 }
 
@@ -259,6 +267,10 @@ export function isShortenedUrl(hostname = "") {
 //-------------------------------------
 
 export function looksLikeBrandImpersonation(hostname = "", path = "") {
+
+    if (isTrustedDomain(hostname)) {
+        return false;
+    }
 
     const host = normalizeHomographs(normalizeHost(hostname));
     const pathText = normalizeHomographs(path || "");
